@@ -14,7 +14,10 @@
 #		define PDEBUG(fmt, args...) printk(KERN_DEBUG "scull: " fmt, ## args)
 #	else
 		/* This one is for userspace */
-#		define PDEBUG(fmt, args...)	/* nothing */
+#		define PDEBUG(fmt, args...) fprintf(stderr, fmt, ## args)
+#	endif
+#else
+#	define PDEBUG(fmt, args...)	/* not debugging: nothing */
 #endif
 
 #undef PDEBUGG
