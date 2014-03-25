@@ -259,7 +259,7 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count,
 	item = (long) *f_pos / itemsize;
 	rest = (long) *f_pos % itemsize;
 	s_pos	= rest / quantum;
-	qpos	= rest % quantum;
+	q_pos	= rest % quantum;
 
 	/* follow the list up to the right position */
 	dptr	= scull_follow(dev, item);
@@ -345,8 +345,7 @@ out:
  * The ioctl() implementation
  */
 
-int scull_ioctl(struct inode *inode, struct file *filp, unsigned int cmd,
-		unsigned long arg)
+long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	int err = 0;
 	int tmp;
@@ -499,13 +498,13 @@ loff_t scull_llseek(struct file *filp, loff_t off, int whence)
 }
 
 struct file_operations scull_fops = {
-	.owner	= THIS_MODULE,
-	.llseek	= scull_llseek,
-	.read	= scull_read,
-	.write	= scull_write,
-	.ioctl	= scull_ioctl,
-	.open	= scull_open,
-	.release = scull_release
+	.owner		= THIS_MODULE,
+	.llseek		= scull_llseek,
+	.read		= scull_read,
+	.write		= scull_write,
+	.unlocked_ioctl	= scull_ioctl,
+	.open		= scull_open,
+	.release	= scull_release
 };
 
 /*
