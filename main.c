@@ -240,12 +240,12 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count,
 	struct scull_qset *dptr;	/* the first listitem */
 	struct scull_dev *dev = filp->private_data;
 	int item;
-	int itemsize;
 	int s_pos;
 	int q_pos;
 	int rest;
 	int quantum	= dev->quantum;
 	int qset	= dev->qset;
+	int itemsize	= quantum * qset;
 	ssize_t retval	= 0;
 
 	if (down_interruptible(&dev->sem))
@@ -518,11 +518,11 @@ struct file_operations scull_fops = {
 void scull_cleanup_module(void)
 {
 	int i;
-	dev_t dev_no = MKDEV(scull_major, scull_minor);
+	dev_t devno = MKDEV(scull_major, scull_minor);
 
 	/* Get rid of our char dev entries */
 	if (scull_devices) {
-		for (i = 0; i < scull_nr_devices; i++) {
+		for (i = 0; i < scull_nr_devs; i++) {
 			scull_trim(scull_devices + i);
 			cdev_del(&scull_devices[i].cdev);
 		}
@@ -555,7 +555,7 @@ static void scull_setup_cdev(struct scull_dev *dev, int index)
 	err		= cdev_add(&dev->cdev, devno, 1);
 
 	if (err)
-		printk(KERN_NOTICE "Error %d adding scull%d" err, index);
+		printk(KERN_NOTICE "Error %d adding scull%d", err, index);
 }
 
 int scull_init_module(void)
@@ -569,7 +569,7 @@ int scull_init_module(void)
 	 */
 	if (scull_major) {
 		dev = MKDEV(scull_major, scull_minor);
-		result = register_chrdev_region(dev, scull_nr_devices, "scull");
+		result = register_chrdev_region(dev, scull_nr_devs, "scull");
 	}
 	else {
 		result = alloc_chrdev_region(&dev, scull_minor, scull_nr_devs,
@@ -585,7 +585,7 @@ int scull_init_module(void)
 	 * allocate the devices -- we can't have them static, as the number can
 	 * be specified at load time
 	 */
-	scull_devices	 = kmalloc(scull_nr_devices * sizeof(struct scull_dev),
+	scull_devices	 = kmalloc(scull_nr_devs * sizeof(struct scull_dev),
 				   GFP_KERNEL);
 	if (!scull_devices) {
 		result = -ENOMEM;
@@ -594,7 +594,7 @@ int scull_init_module(void)
 	memset(scull_devices, 0, scull_nr_devs * sizeof(struct scull_dev));
 
 	/* Initialize each device */
-	for (i = o; i < scull_nr_devs; i++) {
+	for (i = 0; i < scull_nr_devs; i++) {
 		scull_devices[i].quantum = scull_quantum;
 		scull_devices[i].qset	 = scull_qset;
 		init_MUTEX(&scull_devices[i].sem);
