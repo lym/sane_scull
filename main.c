@@ -9,6 +9,7 @@
 #include <linux/fcntl.h>	/* O_ACCMODE */
 #include <linux/seq_file.h>
 #include <linux/cdev.h>
+#include <linux/semaphore.h>	/* sema_init() */
 
 #include <asm/system.h>		/* cli(), *_flags */
 #include <asm/uaccess.h>
