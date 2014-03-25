@@ -14,7 +14,9 @@
 #include <linux/poll.h>
 #include <linux/cdev.h>
 
-#include <asm-generic/uaccess.h>
+#include <linux/sched.h>
+
+//#include <asm-generic/uaccess.h>
 
 #include "scull.h"
 
@@ -27,7 +29,7 @@ struct scull_pipe {
 	struct fasync_struct *async_queue;	/* asynchronous readers */
 	struct semaphore sem;			/* mutual exclusion semaphore */
 	struct cdev cdev;
-}
+};
 
 /* parameters */
 static int scull_p_nr_devs = SCULL_P_NR_DEVS;	/* number of pipe devices */
@@ -109,7 +111,7 @@ static ssize_t scull_p_read(struct file *filp, char __user *buf, size_t count,
 	if (down_interruptible(&dev->sem))
 		return -ERESTARTSYS;
 
-	while (Dev->rp == dev->wp) {		/* nothing to read */
+	while (dev->rp == dev->wp) {		/* nothing to read */
 		up(&dev->sem);			/* release the lock */
 		if (filp->f_flags & O_NONBLOCK)
 			return -EAGAIN;
@@ -149,7 +151,7 @@ static int scull_getwritespace(struct scull_pipe *dev, struct file *filp)
 		DEFINE_WAIT(wait);
 
 		up(&dev->sem);
-		if (filp->flags & O_NONBLOCKS)
+		if (filp->f_flags & O_NONBLOCK)
 			return -EAGAIN;
 		PDEBUG("\"%s\" writing: going to sleep\n", current->comm);
 		prepare_to_wait(&dev->outq, &wait, TASK_INTERRUPTIBLE);
@@ -165,7 +167,7 @@ static int scull_getwritespace(struct scull_pipe *dev, struct file *filp)
 }
 
 /* How much space is free? */
-static int space_free(struct scull_pipe *dev)
+static int spacefree(struct scull_pipe *dev)
 {
 	if (dev->rp == dev->wp)
 		return dev->buffersize - 1;
@@ -187,7 +189,7 @@ static ssize_t scull_p_write(struct file *filp, const char __user *buf,
 		return result;	/* scull_getwritespace called up(&dev->sem) */
 
 	/* ok, space is free, accept something */
-	count = min(count, (size_t)space_free(dev));
+	count = min(count, (size_t)spacefree(dev));
 	if (dev->wp >= dev->rp)
 		count = min(count, (size_t)(dev->end - dev->wp));	/* to end-of-buf */
 	else	/* the write pointer has wrapped, fill up to rp-1  */
@@ -251,7 +253,7 @@ struct file_operations scull_pipe_fops = {
 	.read		= scull_p_read,
 	.write		= scull_p_write,
 	.poll		= scull_p_poll,
-	.ioctl		= scull_ioctl,
+	.unlocked_ioctl	= scull_ioctl,
 	.open		= scull_p_open,
 	.release	= scull_p_release,
 	.fasync		= scull_p_fasync
@@ -318,7 +320,7 @@ void scull_p_cleanup(void)
 
 	for (i = 0; i < scull_p_nr_devs; i++) {
 		cdev_del(&scull_p_devices[i].cdev);
-		kree(scull_p_devices[i].buffer);
+		kfree(scull_p_devices[i].buffer);
 	}
 	kfree(scull_p_devices);
 	unregister_chrdev_region(scull_p_devno, scull_p_nr_devs);
