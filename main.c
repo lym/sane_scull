@@ -27,7 +27,7 @@ int scull_qset	  = SCULL_QSET;
 
 module_param(scull_major, int, S_IRUGO);
 module_param(scull_minor, int, S_IRUGO);
-module_param(scull_nr_devices, int, S_IRUGO);
+module_param(scull_nr_devs, int, S_IRUGO);
 module_param(scull_quantum, int, S_IRUGO);
 module_param(scull_qset, int, S_IRUGO);
 
@@ -58,7 +58,7 @@ int scull_trim(struct scull_dev *dev)
 	}
 	dev->size    = 0;
 	dev->quantum = scull_quantum;
-	dev-qset     = scull_qset;
+	dev->qset     = scull_qset;
 	dev->data    = NULL;
 	return 0;
 }
@@ -216,7 +216,9 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int n)
 	while (n--) {
 		if (!qs->next) {
 			qs->next = kmalloc(sizeof(struct scull_qset), GFP_KERNEL);
-			if (qs->next, 0, sizeof(struct scull_qset));
+			if (qs->next == NULL)
+				return NULL;
+			memset(qs->next, 0, sizeof(struct scull_qset));
 		}
 		qs = qs->next;
 		continue;
@@ -237,8 +239,10 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count,
 {
 	struct scull_qset *dptr;	/* the first listitem */
 	struct scull_dev *dev = filp->private_data;
+	int item;
 	int itemsize;
 	int s_pos;
+	int q_pos;
 	int rest;
 	int quantum	= dev->quantum;
 	int qset	= dev->qset;
@@ -278,7 +282,7 @@ out:
 	return retval;
 }
 
-ssize_t scull_write(struct file *filp, const char __user *buf, size_t,
+ssize_t scull_write(struct file *filp, const char __user *buf, size_t count,
 		    loff_t *f_pos)
 {
 	struct scull_dev *dev = filp->private_data;
@@ -365,7 +369,7 @@ int scull_ioctl(struct inode *inode, struct file *filp, unsigned int cmd,
 	if (_IOC_DIR(cmd) & _IOC_READ)
 		err = !access_ok(VERIFY_WRITE, (void __user *) arg, _IOC_SIZE(cmd));
 	else if (_IOC_DIR(cmd) & _IOC_WRITE)
-		err = !access_ok(VERIFY_READ, (void __user *) arg, __IOC_SIZE(cmd));
+		err = !access_ok(VERIFY_READ, (void __user *) arg, _IOC_SIZE(cmd));
 	if (err)
 		return -EFAULT;
 	switch (cmd) {
@@ -415,7 +419,7 @@ int scull_ioctl(struct inode *inode, struct file *filp, unsigned int cmd,
 			break;
 
 		case SCULL_IOCTQSET:
-			if (!capable(CAP_SYS_USER))
+			if (!capable(CAP_SYS_ADMIN))
 				return -EPERM;
 			scull_qset = arg;
 			break;
