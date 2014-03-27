@@ -1,2 +1,6 @@
-# Scull Kernel Module
+	Scull Kernel Module
+
 Tested against 3.0.0 Kernel on Ubuntu box
+
+	Usage
+$ sudo ./scull_init start	# to load the module, among other things

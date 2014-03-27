@@ -40,7 +40,7 @@ if [ ! -d $MODDIR ]; then
 fi
 
 # Root or die
-if ["$(id -u)" != "0" ]; then
+if [ "$(id -u)" != "0" ]; then
 	echo "You must be root to load or unload kernel modules"
 	exit 1
 fi
@@ -71,8 +71,8 @@ function create_files () {
 		shift 2
 	done
 
-	if [-n "$OWNER" ]; then
-		chown $OWNER $ devlist;
+	if [ -n "$OWNER" ]; then
+		chown $OWNER $devlist;
 	fi
 
 	if [ -n "$GROUP" ]; then
@@ -106,8 +106,8 @@ function remove_files () {
 function load_device () {
 	if [ -f $MODDIR/$DEVICE.o ]; then
 		devpath=$MODDIR/$DEVICE.o
-	elif [-f ./$DEVICE.o ]; then
-		devpath=./$DEVICE.o
+	elif [ -f ./$DEVICE.ko ]; then
+		devpath=./$DEVICE.ko
 	else
 		devpath=$DEVICE;	# let insmod/modprobe guess
 	fi
