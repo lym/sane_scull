@@ -80,14 +80,15 @@ struct file_operations scull_sngl_fops = {
  */
 
 static struct scull_dev scull_u_device;
-static int scull_u_count;		/* initialized to 0 by default */
+static int scull_u_count;
 static uid_t scull_u_owner;		/* initialized to 0 by default */
-static spinlock_t scull_u_lock; //= SPIN_LOCK_UNLOCKED;
+static spinlock_t scull_u_lock;		/* Declare spin lock variable */
 
 static int scull_u_open(struct inode *inode, struct file *filp)
 {
 	struct scull_dev *dev	= &scull_u_device;	/* device information */
-	spin_lock(&scull_u_lock);
+	spin_lock_init(&scull_u_lock);			/* Initialize lock */
+	spin_lock(&scull_u_lock);			/* spin till lock is acquired */
 	if (scull_u_count && (scull_u_owner != current_uid()) &&	/* allow user */
 			     (scull_u_owner != current_euid()) && /* allow whoever did su */
 			     !capable(CAP_DAC_OVERRIDE)) {	/* still allow root */
@@ -247,7 +248,7 @@ static int scull_c_open(struct inode *inode, struct file *filp)
 	dev_t key;
 
 	if (!current->signal->tty) {
-		PDEBUG("Process \"%\" has no ctl tty\n", current->comm);
+		PDEBUG("Process \"%s\" has no ctl tty\n", current->comm);
 		return -EINVAL;
 	}
 	key = tty_devnum(current->signal->tty);

@@ -1,6 +1,50 @@
-	Scull Kernel Module
+*Scull Kernel Module*
 
 Tested against 3.0.0 Kernel on Ubuntu box
 
-	Usage
+# Usage
+
+## Load the module
 $ sudo ./scull_init start	# to load the module, among other things
+
+## Device one
+$ sudo chmod g+w /dev/scull0; sudo chmod o+rw /dev/scull0
+
+$ echo -n "testing scull0...." > /dev/scull0  # write to device
+
+$ cat /proc/scullseq                          # query device info
+
+  sample output:
+
+    Device 0: qset 1000, q 4000, sz 18
+     item at e8ef2998, qset at e7ec5000
+           0: e7ec6000
+
+    Device 1: qset 1000, q 4000, sz 0
+
+    Device 2: qset 1000, q 4000, sz 0
+
+    Device 3: qset 1000, q 4000, sz 0
+
+## Device two
+
+$ sudo chmod g+w /dev/scull1; sudo chmod o+rw /dev/scull1
+
+$ echo -n "testing scull1...." > /dev/scull1
+
+$ cat /proc/scullseq
+
+  sample output:
+
+    Device 0: qset 1000, q 4000, sz 18
+     item at e8ef2998, qset at e7ec5000
+           0: e7ec6000
+
+    Device 1: qset 1000, q 4000, sz 18
+     item at e7f00838, qset at eae1c000
+           0: eae1e000
+
+    Device 2: qset 1000, q 4000, sz 0
+
+    Device 3: qset 1000, q 4000, sz 0
+
