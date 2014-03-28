@@ -1,0 +1,4 @@
+- Write automated test steps to be carried out immediately after
+  scull_init has been started.
+
+- checkpatch warnings need to be cleaned.
