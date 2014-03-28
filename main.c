@@ -133,7 +133,7 @@ static struct seq_operations scull_seq_ops = {
 	.start	= scull_seq_start,
 	.next	= scull_seq_next,
 	.stop	= scull_seq_stop,
-	.show	= scull_sec_show
+	.show	= scull_seq_show
 };
 
 /*
@@ -160,12 +160,10 @@ static struct file_operations scull_proc_ops = {
 static void scull_create_proc(void)
 {
 	struct proc_dir_entry *entry;
-	entry = proc_create_data("scullseq", 0, NULL, scull_proc_ops, NULL);
-	if (!entry)
-		return -ENODEV; /* perhaps print out sth useful???? */
+	entry = proc_create_data("scullseq", 0, NULL, &scull_proc_ops, NULL);
 }
 
-static scull_remove_proc(void)
+static void scull_remove_proc(void)
 {
 	remove_proc_entry("scullseq", NULL);
 }
