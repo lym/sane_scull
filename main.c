@@ -346,8 +346,8 @@ out:
 
 long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
-	int err = 0;
 	int tmp;
+	int err	   = 0;
 	int retval = 0;
 
 	/*

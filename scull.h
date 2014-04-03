@@ -114,9 +114,8 @@ long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg);
  * Ioctl definitions
  */
 
-/* Use 'k' as magic number */
-#define SCULL_IOC_MAGIC	'k'
-/* Please use a different 8-bit number in your code :what's this about?*/
+/* Use 0x81 as magic number */
+#define SCULL_IOC_MAGIC	0x81		/* 00-0C */
 
 #define SCULL_IOCRESET	_IO(SCULL_IOC_MAGIC, 0)
 
