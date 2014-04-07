@@ -16,10 +16,7 @@
 
 #include "scull.h"
 
-/*
- * Our parameters can be set at load time.
- */
-
+/* Our parameters can be set at load time. */
 int scull_major	  = SCULL_MAJOR;
 int scull_minor   = 0;
 int scull_nr_devs = SCULL_NR_DEVS;	/* Number of bare scull devices */
@@ -65,12 +62,6 @@ int scull_trim(struct scull_dev *dev)
 }
 
 #ifdef SCULL_DEBUG	/* use proc only if debugging */
-/*
- * The proc filesystem: function to read an entry?????
- *
- * Nothing here. I don't need scull_read_procmem()
- * This comment will also go away after the driver is fully tested
- */
 
 /*
  * /proc_fs stuff

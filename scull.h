@@ -3,9 +3,7 @@
 
 #include <asm-generic/ioctl.h>	/* needed for the _IOW etc stuff */
 
-/*
- * Debugging Macros
- */
+/* Debugging Macros */
 
 #undef PDEBUG
 #ifdef SCULL_DEBUG
@@ -53,9 +51,7 @@
 #define SCULL_QSET	1000
 #endif
 
-/*
- * The pipe device is a simple circular buffer. Here's its default size
- */
+/* The pipe device is a simple circular buffer. Here's its default size */
 
 #ifndef SCULL_P_BUFFER
 #define SCULL_P_BUFFER	4000
@@ -79,15 +75,11 @@ struct scull_dev {
 	struct cdev cdev;		/* char device structure */
 };
 
-/*
- * Split the minors into two parts
- */
+/* Split the minors into two parts */
 #define TYPE(minor)	(((minor) >> 4) & 0xf)	/* high nibble */
 #define NUM(minor)	((minor) & 0xf)		/* low nibble */
 
-/*
- * The different configurable parameters
- */
+/* The different configurable parameters */
 extern int scull_major;		/* main.c */
 extern int scull_nr_devs;
 extern int scull_quantum;
@@ -95,9 +87,7 @@ extern int scull_qset;
 
 extern int scull_p_buffer;	/* pipe.c */
 
-/*
- * Prototypes for shared functions
- */
+/* Prototypes for shared functions */
 int	scull_p_init(dev_t dev);
 void	scull_p_cleanup(void);
 int	scull_access_init(dev_t dev);

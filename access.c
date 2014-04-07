@@ -14,18 +14,15 @@
 #include <linux/cdev.h>
 #include <linux/tty.h>
 #include <linux/list.h>
-//#include <asm-generic/atomic.h>
 #include <asm/atomic.h>
-//#include <asm/current.h>	/* "current" process */
 #include <linux/sched.h>
 #include <linux/cred.h>
-//#include <linux/mutex.h>	/* SPIN_LOCK_UNLOCKED */
 
 #include "scull.h"
 
 static dev_t scull_a_firstdev;		/* Where our device begins */
-
 struct cred *new;
+
 /*
  * These devices fall back on the main scull operations. They only differ in the
  * implementation of open() and close()
@@ -76,7 +73,7 @@ struct file_operations scull_sngl_fops = {
 
 /*
  * Next, the "uid" device. It can be opened multiple times by the same user,
- * but access is denied to other users if the device is open
+ * but access is denied to other users while the device is open
  */
 
 static struct scull_dev scull_u_device;
@@ -137,7 +134,7 @@ static struct scull_dev scull_w_device;
 static int scull_w_count;		/* initialized to 0 by default */
 static uid_t scull_w_owner;		/* initialized to 0 by default */
 static DECLARE_WAIT_QUEUE_HEAD(scull_w_wait);
-static spinlock_t scull_w_lock; //= SPIN_LOCK_UNLOCKED;
+static spinlock_t scull_w_lock;		/* Declare lock */
 
 static inline int scull_w_available(void)
 {
@@ -148,7 +145,7 @@ static inline int scull_w_available(void)
 static int scull_w_open(struct inode *inode, struct file *filp)
 {
 	struct scull_dev *dev = &scull_w_device;	/* device information */
-	spin_lock(&scull_w_lock);
+	spin_lock(&scull_w_lock);			/* initialize lock */
 	while (!scull_w_available()) {
 		spin_unlock(&scull_w_lock);
 		if (filp->f_flags & O_NONBLOCK)
