@@ -76,7 +76,7 @@ static void *scull_seq_start(struct seq_file *s, loff_t *pos)
 {
 	if (*pos >= scull_nr_devs)
 		return NULL;		/* No more to read */
-	return scull_devices + *pos;
+	return (void *)(scull_devices + *pos);
 }
 
 static void *scull_seq_next(struct seq_file *s, void *v, loff_t *pos)
