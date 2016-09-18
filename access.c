@@ -16,7 +16,7 @@
 #include <linux/list.h>
 #include <asm/atomic.h>
 #include <linux/sched.h>
-#include <linux/cred.h>
+#include <linux/cred.h>  /* current_uid, current_euid */
 
 #include "scull.h"
 
