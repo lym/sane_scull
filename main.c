@@ -11,7 +11,6 @@
 #include <linux/cdev.h>
 #include <linux/semaphore.h>	/* sema_init() */
 
-#include <asm/system.h>		/* cli(), *_flags */
 #include <asm/uaccess.h>
 
 #include "scull.h"
