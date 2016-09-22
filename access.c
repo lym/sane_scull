@@ -86,15 +86,15 @@ static int scull_u_open(struct inode *inode, struct file *filp)
 	struct scull_dev *dev	= &scull_u_device;	/* device information */
 	spin_lock_init(&scull_u_lock);			/* Initialize lock */
 	spin_lock(&scull_u_lock);			/* spin till lock is acquired */
-	if (scull_u_count && (scull_u_owner != current_uid()) &&	/* allow user */
-			     (scull_u_owner != current_euid()) && /* allow whoever did su */
+	if (scull_u_count && (scull_u_owner != current_uid().val) &&	/* allow user */
+			     (scull_u_owner != current_euid().val) && /* allow whoever did su */
 			     !capable(CAP_DAC_OVERRIDE)) {	/* still allow root */
 		spin_unlock(&scull_u_lock);
 		return -EBUSY;				/* -EPERM would confuse user */
 	}
 
 	if (scull_u_count == 0)
-		scull_u_owner = current_uid();		/* grab it */
+		scull_u_owner = current_uid().val;		/* grab it */
 
 	scull_u_count++;
 	spin_unlock(&scull_u_lock);
@@ -138,8 +138,8 @@ static spinlock_t scull_w_lock;		/* Declare lock */
 
 static inline int scull_w_available(void)
 {
-	return (scull_w_count == 0 || scull_w_owner == current_uid() ||
-		scull_w_owner == current_euid() || capable(CAP_DAC_OVERRIDE));
+	return (scull_w_count == 0 || scull_w_owner == current_uid().val ||
+		scull_w_owner == current_euid().val || capable(CAP_DAC_OVERRIDE));
 }
 
 static int scull_w_open(struct inode *inode, struct file *filp)
@@ -156,7 +156,7 @@ static int scull_w_open(struct inode *inode, struct file *filp)
 	}
 
 	if (scull_w_count == 0)
-		scull_w_owner = current_uid();
+		scull_w_owner = current_uid().val;
 	scull_w_count++;
 	spin_unlock(&scull_w_lock);
 
